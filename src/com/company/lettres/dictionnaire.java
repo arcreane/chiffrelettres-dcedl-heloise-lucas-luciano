@@ -1,11 +1,8 @@
 package com.company.lettres;
 
-import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Array;
 import java.util.*;
 
 public class dictionnaire {
@@ -16,20 +13,32 @@ public class dictionnaire {
     static int count = 0;
     public static List<String> wordsFound = new ArrayList<>();
 
-    public static ArrayList<String> getLetters(String letter) {
+    public static ArrayList<String> getLetters(String letter,int i) {
 
-        if (letter.equals("voyelle") || letter.equals("v")) {
+        if (letter.equals("voyelle") || letter.equals("v") || letter.equals("V")) {
             chosenLetters.add(voyelle[rdnGen(voyelle.length)]);
             System.out.println(chosenLetters);
             count++;
-        } else if (letter.equals("consonne") || letter.equals("c")) {
+        } else if (letter.equals("consonne") || letter.equals("c") || letter.equals("C")) {
             chosenLetters.add(consonne[rdnGen(consonne.length)]);
             System.out.println(chosenLetters);
             count++;
-        } else if (count == 10) {
+        } else if (count == i) {
             return chosenLetters;
         }
         return null;
+    }
+    public static void getRDMletters(){
+        for (int i = 0; i < 5; i++){
+            if (rdnGen(100) <= 50){
+                chosenLetters.add(consonne[rdnGen(consonne.length)]);
+            }
+            else {
+                chosenLetters.add(voyelle[rdnGen(voyelle.length)]);
+            }
+        }
+        System.out.println("L'ordinateur à choisi 5 types de lettres au hazard.\n" +
+                "Les lettres disponibles sont : " + chosenLetters);
     }
 
     private static int rdnGen(int z) {
@@ -40,7 +49,7 @@ public class dictionnaire {
     public static String[] convertFileToArr() {
 
         try {
-            List<String> lines = Files.readAllLines(Paths.get("/Users/lucasgascoin/Desktop/DCEDL/chiffrelettres-dcedl-heloise-lucas-luciano/src/liste_francais.txt"), StandardCharsets.ISO_8859_1);
+            List<String> lines = Files.readAllLines(Path.of("/Users/luciano/Desktop/coursAlgoAV/chiffrelettres-dcedl-heloise-lucas-luciano/src/liste_francais.txt"), StandardCharsets.ISO_8859_1);
             arr = lines.toArray(new String[lines.size()]);
             return arr;
         } catch (Exception e) {
@@ -157,29 +166,32 @@ public class dictionnaire {
                 //System.out.println("'" + dico[i] + "' was found");
         }
     }
-    public static String longestWord(List<String> tss){
+    public static String longestWord(List<String> dicoWords){
         String wordRef = "";
-        ArrayList<String> cloneLetters = new ArrayList<>();
 
 
-        for (String mot : tss) {
-            cloneLetters.clear();
-            for (int i = 0; i < chosenLetters.size(); i++){
-                cloneLetters.add(chosenLetters.get(i));
+        for (String mot : dicoWords){
+            boolean wordIsValid = true;
+            ArrayList<String> cloneLetters = new ArrayList<>();
+            for (int k = 0; k < chosenLetters.size(); k++){
+                cloneLetters.add(chosenLetters.get(k));
             }
             String[] wordSplit = mot.split("");
-            for (int i = 0; i < mot.length(); i++){
-                System.out.println(cloneLetters);
-                for (int j = 0; j < cloneLetters.size(); j++) {
-                    System.out.println(cloneLetters);
-                    if (Objects.equals(wordSplit[i], cloneLetters.get(j))) {
-                        System.out.println(cloneLetters);
-                        cloneLetters.remove(i);
-                        if (mot.length() <= 10 && mot.length() > wordRef.length()) {
-                            wordRef = mot;
+            for (int i = 0; i < mot.length(); i++) {
+                if (wordIsValid) {
+                    for (int j = 0; j < cloneLetters.size(); j++) {
+                        if (Objects.equals(wordSplit[i], cloneLetters.get(j))) {
+                            wordIsValid = true;
+                            cloneLetters.remove(j);
+                            break;
+                        } else {
+                            wordIsValid = false;
                         }
                     }
                 }
+            }
+            if(wordIsValid && mot.length() <= 10 && mot.length() > wordRef.length()){
+                wordRef = mot;
             }
         }
         return wordRef;
